@@ -28,9 +28,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("ru-RU");
-        var dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ChudoObuv");
-        Directory.CreateDirectory(dataDirectory);
-        store = new StoreService(Path.Combine(dataDirectory, "store.db"));
+        store = new StoreService(DatabaseSettings.Load(AppContext.BaseDirectory));
         store.Initialize(Path.Combine(AppContext.BaseDirectory, "Database", "schema.sql"), Path.Combine(AppContext.BaseDirectory, "Database", "seed.sql"));
         Logo.Source = new BitmapImage(new Uri(Asset("logo.png")));
         Icon = new BitmapImage(new Uri(Asset("store.ico")));
@@ -52,7 +50,7 @@ public partial class MainWindow : Window
         try { action(); }
         catch (Exception exception)
         {
-            MessageBox.Show(this, exception is Microsoft.Data.Sqlite.SqliteException ? "Не удалось сохранить данные. Закройте другие операции с базой и повторите попытку.\n" + exception.Message : exception.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(this, exception is Microsoft.Data.SqlClient.SqlException ? "Не удалось выполнить запрос к SQL Server. Проверьте подключение и повторите попытку.\n" + exception.Message : exception.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

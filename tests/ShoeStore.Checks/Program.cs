@@ -1,21 +1,22 @@
-using Microsoft.Data.Sqlite;
+using Microsoft.Data.SqlClient;
 using ShoeStore.Core;
 
 var passed = 0;
 var output = new List<string>();
 var root = Path.Combine(Path.GetTempPath(), "ChudoObuvChecks-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(root);
-var database = Path.Combine(root, "test.db");
+var databaseName = "ChudoObuvTest_" + Guid.NewGuid().ToString("N");
+var database = new SqlConnectionStringBuilder(DatabaseSettings.DefaultConnectionString) { InitialCatalog = databaseName }.ToString();
 var now = new DateTime(2026, 5, 15);
 var store = new StoreService(database, () => now);
 store.Initialize(Path.Combine(AppContext.BaseDirectory, "Database", "schema.sql"), Path.Combine(AppContext.BaseDirectory, "Database", "seed.sql"));
 string LoginForRole(int role)
 {
-    using var connection = new SqliteConnection($"Data Source={database}");
+    using var connection = new SqlConnection(database);
     connection.Open();
     using var command = connection.CreateCommand();
-    command.CommandText = "SELECT Login FROM Users WHERE RoleId=$role ORDER BY Id LIMIT 1";
-    command.Parameters.AddWithValue("$role",role);
+    command.CommandText = "SELECT TOP(1) Login FROM Users WHERE RoleId=@role ORDER BY Id";
+    command.Parameters.AddWithValue("@role",role);
     return (string)command.ExecuteScalar()!;
 }
 var admin = store.Login(LoginForRole(3))!;
@@ -38,7 +39,7 @@ void Reject(Action action)
 }
 long Scalar(string sql)
 {
-    using var connection = new SqliteConnection($"Data Source={database};Foreign Keys=True");
+    using var connection = new SqlConnection(database);
     connection.Open();
     using var command = connection.CreateCommand();
     command.CommandText = sql;
@@ -46,7 +47,7 @@ long Scalar(string sql)
 }
 void Execute(string sql)
 {
-    using var connection = new SqliteConnection($"Data Source={database};Foreign Keys=True");
+    using var connection = new SqlConnection(database);
     connection.Open();
     using var command = connection.CreateCommand();
     command.CommandText = sql;
@@ -83,9 +84,19 @@ Check("Менеджер создаёт заказ выбранному клие�
 Check("Декабрь учитывается как предыдущий месяц января", () => { now = new DateTime(2027,1,4); var id = store.PlaceOrder(customer, [new(stock.Id,1)]); store.ChangeOrderDate(admin,id,new DateTime(2026,12,31)); Assert(!store.Products().First(p => p.Id == 1).HasDiscount); store.DeleteOrder(admin,id); });
 Check("Граница месяца: первое число текущего месяца не учитывается", () => { now = new DateTime(2026,10,29); var id = store.PlaceOrder(customer, [new(stock.Id,1)]); store.ChangeOrderDate(admin,id,new DateTime(2026,10,1)); Assert(store.Products().First(p => p.Id == 1).HasDiscount); store.ChangeOrderDate(admin,id,new DateTime(2026,9,1)); Assert(!store.Products().First(p => p.Id == 1).HasDiscount); store.DeleteOrder(admin,id); });
 Check("Одновременная покупка последней пары: ровно один успех", () => { Execute($"UPDATE StockItems SET Quantity=1 WHERE Id={stock.Id}"); var successes = 0; var attempts = Enumerable.Range(0,2).Select(_ => Task.Run(() => { try { store.PlaceOrder(customer,[new(stock.Id,1)]); Interlocked.Increment(ref successes); } catch (InvalidOperationException) { } })).ToArray(); Task.WaitAll(attempts); Assert(successes == 1 && Scalar($"SELECT Quantity FROM StockItems WHERE Id={stock.Id}") == 0); });
-Check("Ссылочная целостность базы после операций", () => { using var c = new SqliteConnection($"Data Source={database}"); c.Open(); using var command = c.CreateCommand(); command.CommandText = "PRAGMA foreign_key_check"; using var reader = command.ExecuteReader(); Assert(!reader.Read()); });
+Check("Ссылочная целостность базы после операций", () => { using var c = new SqlConnection(database); c.Open(); using var command = c.CreateCommand(); command.CommandText = "DBCC CHECKCONSTRAINTS WITH ALL_CONSTRAINTS"; using var reader = command.ExecuteReader(); Assert(!reader.Read()); });
 var summary = $"SUCCESS: {passed} checks passed. Fixed clock, isolated temporary database.";
 Console.WriteLine(summary);
 if (args.Length > 0) File.WriteAllLines(args[0], output.Append(summary));
-SqliteConnection.ClearAllPools();
+SqlConnection.ClearAllPools();
+var masterBuilder = new SqlConnectionStringBuilder(database) { InitialCatalog = "master" };
+using (var master = new SqlConnection(masterBuilder.ConnectionString))
+{
+    master.Open();
+    using var drop = master.CreateCommand();
+    if (!databaseName.StartsWith("ChudoObuvTest_") || databaseName.Length != 46)
+        throw new InvalidOperationException("Некорректное имя временной базы");
+    drop.CommandText = $"ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [{databaseName}];";
+    drop.ExecuteNonQuery();
+}
 Directory.Delete(root, true);

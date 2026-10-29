@@ -3,7 +3,6 @@ from pathlib import Path
 from decimal import Decimal
 import json
 import shutil
-import sqlite3
 import openpyxl
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +12,7 @@ def rows(name):
     return [r for r in list(openpyxl.load_workbook(SOURCE / name, data_only=True).active.values)[1:] if r[0] is not None]
 
 def quote(value):
-    return str(value) if isinstance(value, int) else "'" + str(value).replace("'", "''") + "'"
+    return str(value) if isinstance(value, int) else "N'" + str(value).replace("'", "''") + "'"
 
 def clean(value):
     return ' '.join(str(value).split())
@@ -26,7 +25,8 @@ def product_key(name, manufacturer):
 
 sql = []
 def insert(table, *values):
-    sql.append(f"INSERT INTO {table} VALUES({','.join(map(quote, values))});")
+    columns = {"Orders": "(Id,OrderedAt,UserId)", "OrderLines": "(Id,OrderId,StockItemId,Quantity,UnitPriceCents)"}.get(table, "")
+    sql.append(f"INSERT INTO {table}{columns} VALUES({','.join(map(quote, values))});")
 
 roles = {'Авторизованный пользователь': 1, 'Менеджер': 2, 'Администратор': 3}
 for label, id in roles.items():
@@ -74,16 +74,21 @@ for lineId, (order, date, customer, category, name, manufacturer, size, quantity
         missing.append(key)
     insert('OrderLines', lineId, int(order), stocks[key], int(quantity), int(Decimal(str(price))*100))
 
-(ROOT / 'database' / 'seed.sql').write_text('\n'.join(sql)+'\n', encoding='utf-8')
-con = sqlite3.connect(':memory:')
-con.executescript((ROOT / 'database' / 'schema.sql').read_text(encoding='utf-8'))
-con.executescript('\n'.join(sql))
-assert not list(con.execute('PRAGMA foreign_key_check'))
+# IDENTITY_INSERT preserves original order and line identifiers during import.
+ordered_sql=[]
+for table in ['Roles','Users','Categories','Subcategories','Manufacturers','Products','Sizes','StockItems','Orders','OrderLines']:
+    if table in ['Orders','OrderLines']:
+        ordered_sql.append(f'SET IDENTITY_INSERT dbo.{table} ON;')
+    ordered_sql.extend(line for line in sql if line.startswith(f'INSERT INTO {table} ') or line.startswith(f'INSERT INTO {table}('))
+    if table in ['Orders','OrderLines']:
+        ordered_sql.append(f'SET IDENTITY_INSERT dbo.{table} OFF;')
+(ROOT / 'database' / 'seed.sql').write_text('\n'.join(ordered_sql)+'\n', encoding='utf-8')
+(ROOT / 'database' / 'full.sql').write_text((ROOT / 'database' / 'schema.sql').read_text(encoding='utf-8')+'\n'+'\n'.join(ordered_sql)+'\n', encoding='utf-8')
 assets = ROOT / 'src' / 'ShoeStore.App' / 'Assets'
 shutil.copytree(SOURCE / 'Images', assets / 'Images', dirs_exist_ok=True)
 for source, dest in [('picture.png','picture.png'),('Чудо Обувь.png','logo.png'),('Чудо Обувь.ico','store.ico')]:
     shutil.copy2(SOURCE / source, assets / dest)
-summary = {t: con.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0] for t in ['Users','Products','StockItems','Orders','OrderLines','Sizes']}
+summary = {t: sum((line.startswith(f'INSERT INTO {t} ') or line.startswith(f'INSERT INTO {t}(')) for line in sql) for t in ['Users','Products','StockItems','Orders','OrderLines','Sizes']}
 summary['historical_positions_added_with_zero_stock'] = missing
 summary['stock_import_policy'] = 'Исходные количества доступны для новых заказов. Исторические заказы повторно их не уменьшают.'
 (ROOT / 'docs' / 'import-summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding='utf-8')

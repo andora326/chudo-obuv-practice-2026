@@ -19,3 +19,8 @@ docs/*.pdf
 docs/diagrams/
 docs/test-results.txt
 docs/import-summary.json
+
+connection-string.txt
+*.mdf
+*.ldf
+*.bak
