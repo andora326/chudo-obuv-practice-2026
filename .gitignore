@@ -1,0 +1,21 @@
+**/bin/
+**/obj/
+.vs/
+*.user
+*.db
+*.db-shm
+*.db-wal
+artifacts/
+docs/private/
+
+# Учебные данные и документы остаются только локально
+database/seed.sql
+database/full.sql
+release/
+src/ShoeStore.App/Assets/
+docs/screenshots/
+docs/*.docx
+docs/*.pdf
+docs/diagrams/
+docs/test-results.txt
+docs/import-summary.json
