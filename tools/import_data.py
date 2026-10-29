@@ -83,7 +83,8 @@ for table in ['Roles','Users','Categories','Subcategories','Manufacturers','Prod
     if table in ['Orders','OrderLines']:
         ordered_sql.append(f'SET IDENTITY_INSERT dbo.{table} OFF;')
 (ROOT / 'database' / 'seed.sql').write_text('\n'.join(ordered_sql)+'\n', encoding='utf-8')
-(ROOT / 'database' / 'full.sql').write_text((ROOT / 'database' / 'schema.sql').read_text(encoding='utf-8')+'\n'+'\n'.join(ordered_sql)+'\n', encoding='utf-8')
+header = "USE master;\nIF DB_ID(N'ChudoObuvPractice') IS NULL CREATE DATABASE ChudoObuvPractice;\nGO\nUSE ChudoObuvPractice;\nGO\nIF OBJECT_ID(N'dbo.Users',N'U') IS NOT NULL THROW 50001, N'База уже содержит таблицы приложения. Используйте пустую базу или существующее приложение.', 1;\nSET XACT_ABORT ON;\nBEGIN TRANSACTION;\n"
+(ROOT / 'database' / 'full.sql').write_text(header+(ROOT / 'database' / 'schema.sql').read_text(encoding='utf-8')+'\n'+'\n'.join(ordered_sql)+'\nCOMMIT;\n', encoding='utf-8')
 assets = ROOT / 'src' / 'ShoeStore.App' / 'Assets'
 shutil.copytree(SOURCE / 'Images', assets / 'Images', dirs_exist_ok=True)
 for source, dest in [('picture.png','picture.png'),('Чудо Обувь.png','logo.png'),('Чудо Обувь.ico','store.ico')]:
