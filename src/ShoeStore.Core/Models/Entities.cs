@@ -1,4 +1,3 @@
-// Модель Database First для ShoeStoreModel.edmx.
 namespace ShoeStore.Core.Models;
 
 public partial class Roles

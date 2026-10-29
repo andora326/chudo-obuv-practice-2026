@@ -40,7 +40,7 @@ public partial class MainWindow : Window
         PagesHost.Children.Add(mainFrame);
         System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("ru-RU");
         store = new StoreService(DatabaseSettings.Load(AppContext.BaseDirectory));
-        store.Initialize(Path.Combine(AppContext.BaseDirectory, "Database", "schema.sql"), Path.Combine(AppContext.BaseDirectory, "Database", "seed.sql"));
+        store.CheckConnection();
         Logo.Source = new BitmapImage(new Uri(Asset("logo.png")));
         Icon = new BitmapImage(new Uri(Asset("store.ico")));
         CategoryBox.ItemsSource = new[] { "Все категории" }.Concat(store.Categories()).ToList();

@@ -17,20 +17,18 @@ public sealed class StoreService
     }
     private ShoeStoreEntities Open() => new ShoeStoreEntities(connectionString);
 
-    public void Initialize(string schemaPath, string seedPath)
+    public void CheckConnection()
     {
-        DatabaseSettings.EnsureDatabase(connectionString);
-        // Скрипты используются только для первоначального импорта базы Database First.
-        using var connection = new SqlConnection(connectionString);
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
-        using var check = new SqlCommand("SELECT COUNT(*) FROM sys.tables WHERE name=N'Users' AND schema_id=SCHEMA_ID(N'dbo')", connection, transaction);
-        if (Convert.ToInt32(check.ExecuteScalar()) != 0) return;
-        using var schema = new SqlCommand(File.ReadAllText(schemaPath), connection, transaction);
-        schema.ExecuteNonQuery();
-        using var seed = new SqlCommand(File.ReadAllText(seedPath), connection, transaction);
-        seed.ExecuteNonQuery();
-        transaction.Commit();
+        try
+        {
+            using var db = Open();
+            db.Users.Take(1).ToList();
+            db.StockItems.Take(1).ToList();
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException("Не удалось подключиться к подготовленной базе. Создайте базу ChudoObuvPractice в SSMS, выполните schema.sql и seed.sql и проверьте connection-string.txt.", exception);
+        }
     }
 
     private static User UserModel(Users row) => new User(row.Id, row.Login,
