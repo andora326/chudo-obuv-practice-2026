@@ -1,4 +1,4 @@
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using ShoeStore.Core;
 
 var passed = 0;
@@ -28,7 +28,7 @@ void Check(string name, Action action)
     action();
     passed++;
     output.Add($"PASS {passed:00} {name}");
-    Console.WriteLine(output[^1]);
+    Console.WriteLine(output[output.Count - 1]);
 }
 void Assert(bool condition, string message = "Проверка не выполнена") { if (!condition) throw new Exception(message); }
 void Reject(Action action)
@@ -63,6 +63,7 @@ Check("Нет заказов в прошлом месяце — скидка 25 
 Check("Поиск на кириллице без учёта регистра по описанию", () => Assert(store.Products("СМОЛЕНСК").Count > 0));
 Check("Поиск, категория и сортировка применяются совместно", () => { var list = store.Products("кроссовки", "Женская обувь", 2); Assert(list.Count > 0 && list.All(p => p.Category == "Женская обувь") && list.Select(p => p.Price).SequenceEqual(list.Select(p => p.Price).OrderByDescending(p => p))); });
 Check("Неизвестный запрос возвращает пустой каталог", () => Assert(store.Products("неизвестныйтовар123").Count == 0));
+Check("Отсутствующее изображение заменяется заглушкой", () => { Execute("UPDATE Products SET Image=NULL WHERE Id=31"); Assert(store.Products().First(p => p.Id == 31).Image == "picture.png"); });
 var stock = store.Stock(1).First();
 var stock2 = store.Stock(2).First();
 var orderId = 0;
@@ -100,3 +101,4 @@ using (var master = new SqlConnection(masterBuilder.ConnectionString))
     drop.ExecuteNonQuery();
 }
 Directory.Delete(root, true);
+

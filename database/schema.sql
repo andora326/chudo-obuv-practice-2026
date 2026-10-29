@@ -3,7 +3,7 @@ CREATE TABLE dbo.Users(Id int NOT NULL PRIMARY KEY, Login nvarchar(100) COLLATE 
 CREATE TABLE dbo.Categories(Id int NOT NULL PRIMARY KEY, Name nvarchar(100) NOT NULL UNIQUE);
 CREATE TABLE dbo.Subcategories(Id int NOT NULL PRIMARY KEY, CategoryId int NOT NULL REFERENCES dbo.Categories(Id), Name nvarchar(100) NOT NULL, UNIQUE(CategoryId, Name));
 CREATE TABLE dbo.Manufacturers(Id int NOT NULL PRIMARY KEY, Name nvarchar(150) NOT NULL UNIQUE);
-CREATE TABLE dbo.Products(Id int NOT NULL PRIMARY KEY, SubcategoryId int NOT NULL REFERENCES dbo.Subcategories(Id), ManufacturerId int NOT NULL REFERENCES dbo.Manufacturers(Id), Name nvarchar(255) NOT NULL, Image nvarchar(255) NOT NULL, Description nvarchar(max) NOT NULL, Composition nvarchar(max) NOT NULL, PriceCents bigint NOT NULL CHECK(PriceCents>=0), UNIQUE(Name, ManufacturerId));
+CREATE TABLE dbo.Products(Id int NOT NULL PRIMARY KEY, SubcategoryId int NOT NULL REFERENCES dbo.Subcategories(Id), ManufacturerId int NOT NULL REFERENCES dbo.Manufacturers(Id), Name nvarchar(255) NOT NULL, Image nvarchar(255) NULL, Description nvarchar(max) NOT NULL, Composition nvarchar(max) NOT NULL, PriceCents bigint NOT NULL CHECK(PriceCents>=0), UNIQUE(Name, ManufacturerId));
 CREATE TABLE dbo.Sizes(Id int NOT NULL PRIMARY KEY, Value decimal(4,1) NOT NULL UNIQUE CHECK(Value>0));
 CREATE TABLE dbo.StockItems(Id int NOT NULL PRIMARY KEY, ProductId int NOT NULL REFERENCES dbo.Products(Id), SizeId int NOT NULL REFERENCES dbo.Sizes(Id), Quantity int NOT NULL CHECK(Quantity>=0), UNIQUE(ProductId, SizeId));
 CREATE TABLE dbo.Orders(Id int IDENTITY(1,1) NOT NULL PRIMARY KEY, OrderedAt date NOT NULL, UserId int NOT NULL REFERENCES dbo.Users(Id));

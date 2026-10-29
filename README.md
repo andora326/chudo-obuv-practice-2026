@@ -15,7 +15,7 @@
 
 ## Запуск
 
-Готовая сборка, отчёт и исходные учебные данные хранятся локально и не публикуются в этом репозитории. Требуются Windows 10/11 x64, .NET Desktop Runtime 9 x64 и Microsoft SQL Server Express LocalDB (либо другой экземпляр SQL Server).
+Готовая сборка, отчёт и исходные учебные данные хранятся локально и не публикуются в этом репозитории. Требуются Windows 10/11 x64, .NET Framework 4.8 и Microsoft SQL Server Express LocalDB (либо другой экземпляр SQL Server).
 
 Перед сборкой с учебными данными скачайте официальные приложения к заданию: https://bom.firpo.ru/Public/6397. Распакуйте таблицы и изображения Приложения 2 в `../materials/data` относительно корня проекта. Установите Python-пакет `openpyxl` и запустите `python tools/import_data.py`. Он создаст локальные `database/seed.sql` и `src/ShoeStore.App/Assets`. Эти файлы исключены из Git.
 
@@ -23,15 +23,17 @@
 
 ## Сборка и проверки
 
-Нужен .NET SDK 9. Из корня проекта:
+Нужен .NET SDK для сборки и .NET Framework 4.8 Developer Pack. Из корня проекта:
 
 ```powershell
 dotnet build ShoeStore.sln -c Release
 dotnet run --project tests/ShoeStore.Checks -c Release
-dotnet publish src/ShoeStore.App -c Release -r win-x64 --self-contained false -o release/sqlserver-windows-x64
+dotnet build src/ShoeStore.App -c Release -o release/ef6-net48
 ```
 
-28 проверок используют отдельную временную базу и фиксированную дату. Они проверяют импорт, роли, скидки на границе месяца и года, атомарность заказа, возврат остатка и конкурентную покупку. Результаты прогона сохраняются локально в `docs/test-results.txt`.
+Слой данных использует **Entity Framework 6 и EDMX (Database First)**, интерфейс WPF - `Frame`, `Page`, `ListView` и привязки, как в частях 3 и 4 учебного видео. Сохранённая базовая цена при скидке отображается перечёркнутой. SQL-скрипты применяются только для начального создания и импорта базы.
+
+29 проверок используют отдельную временную базу и фиксированную дату. Они проверяют импорт, роли, скидки на границе месяца и года, атомарность заказа, возврат остатка и конкурентную покупку. Результаты прогона сохраняются локально в `docs/test-results.txt`.
 
 ## Структура
 
@@ -42,7 +44,7 @@ dotnet publish src/ShoeStore.App -c Release -r win-x64 --self-contained false -o
 - Полный скрипт базы с данными хранится локально.
 - `tests/ShoeStore.Checks` - исполняемые проверки основных сценариев.
 - `docs` - руководство и описание требований; отчёт, схемы и скриншоты остаются локально.
-- `release/sqlserver-windows-x64` - локальная готовая сборка с учебными данными.
+- `release/ef6-net48` - локальная готовая сборка с учебными данными.
 - `tools/import_data.py` - повторное преобразование исходных XLSX в SQL.
 
 ## Исходные данные и принятые решения

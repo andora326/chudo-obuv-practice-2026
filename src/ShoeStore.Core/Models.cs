@@ -6,6 +6,7 @@ public sealed record Product(int Id, string Name, string Category, string Subcat
 {
     public string Availability => Quantity > 5 ? "много" : "мало";
     public bool HasDiscount => Price < BasePrice;
+    public string OldPriceLabel => HasDiscount ? $"{BasePrice:N2} ₽" : "";
     public string PriceLabel => $"{Price:N2} ₽" + (HasDiscount ? "  • скидка 25%" : "");
     public string QuantityLabel => $"Наличие: {Availability} ({Quantity} пар)";
 }

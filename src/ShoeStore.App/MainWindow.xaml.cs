@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using ShoeStore.Core;
+using ShoeStore.App.Pages;
+using System.Windows.Navigation;
 
 namespace ShoeStore.App;
 
@@ -19,6 +21,8 @@ public sealed record BasketRow(int StockItemId, string Name, decimal Size, int Q
 public partial class MainWindow : Window
 {
     private readonly StoreService store;
+    private readonly Frame mainFrame = new Frame { NavigationUIVisibility = NavigationUIVisibility.Hidden };
+    private readonly Dictionary<string, Page> pages = new Dictionary<string, Page>();
     private User? user;
     private readonly List<BasketRow> basket = [];
     private bool ready;
@@ -27,6 +31,13 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        PagesHost.Children.Clear();
+        CatalogPanel.Visibility = CartPanel.Visibility = OrdersPanel.Visibility = Visibility.Visible;
+        pages["catalog"] = new ProductsPage(CatalogPanel);
+        pages["cart"] = new CartPage(CartPanel);
+        pages["orders"] = new OrdersPage(OrdersPanel);
+        pages["auth"] = new AuthorizationPage(login => { LoginBox.Text = login; LoginClick(this, new RoutedEventArgs()); }, () => Navigate("catalog"));
+        PagesHost.Children.Add(mainFrame);
         System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("ru-RU");
         store = new StoreService(DatabaseSettings.Load(AppContext.BaseDirectory));
         store.Initialize(Path.Combine(AppContext.BaseDirectory, "Database", "schema.sql"), Path.Combine(AppContext.BaseDirectory, "Database", "seed.sql"));
@@ -36,7 +47,7 @@ public partial class MainWindow : Window
         CategoryBox.SelectedIndex = 0;
         SortBox.SelectedIndex = 0;
         ready = true;
-        RefreshCatalog();
+        Navigate("auth");
     }
 
     public static string Asset(string filename)
@@ -50,7 +61,7 @@ public partial class MainWindow : Window
         try { action(); }
         catch (Exception exception)
         {
-            MessageBox.Show(this, exception is Microsoft.Data.SqlClient.SqlException ? "Не удалось выполнить запрос к SQL Server. Проверьте подключение и повторите попытку.\n" + exception.Message : exception.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(this, exception is System.Data.SqlClient.SqlException ? "Не удалось выполнить запрос к SQL Server. Проверьте подключение и повторите попытку.\n" + exception.Message : exception.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -66,10 +77,9 @@ public partial class MainWindow : Window
     private void Navigate(string view)
     {
         CurrentView = view;
-        CatalogPanel.Visibility = view == "catalog" ? Visibility.Visible : Visibility.Collapsed;
-        CartPanel.Visibility = view == "cart" ? Visibility.Visible : Visibility.Collapsed;
-        OrdersPanel.Visibility = view == "orders" ? Visibility.Visible : Visibility.Collapsed;
-        Title = "Чудо Обувь: " + (view == "catalog" ? "каталог" : view == "cart" ? "оформление заказа" : "управление заказами");
+        LoginBox.Visibility = LoginButton.Visibility = user is null && view != "auth" ? Visibility.Visible : Visibility.Collapsed;
+        mainFrame.Navigate(pages[view]);
+        Title = "Чудо Обувь: " + (view == "auth" ? "авторизация" : view == "catalog" ? "каталог" : view == "cart" ? "оформление заказа" : "управление заказами");
         if (view == "catalog") RefreshCatalog();
         if (view == "cart") RefreshCart();
         if (view == "orders") RefreshOrders();
@@ -107,7 +117,7 @@ public partial class MainWindow : Window
         LogoutButton.Visibility = Filters.Visibility = CartButton.Visibility = OrdersButton.Visibility = CustomerPanel.Visibility = AdminControls.Visibility = Visibility.Collapsed;
         CustomerBox.ItemsSource = null;
         OrdersGrid.ItemsSource = OrderLinesGrid.ItemsSource = null;
-        Navigate("catalog");
+        Navigate("auth");
     }
     private void CatalogClick(object sender, RoutedEventArgs e) => Safe(() => Navigate("catalog"));
     private void CartClick(object sender, RoutedEventArgs e) => Safe(() => Navigate("cart"));
@@ -194,3 +204,4 @@ public partial class MainWindow : Window
     private void DeleteLineClick(object sender, RoutedEventArgs e) => Safe(() => { var order = SelectedOrder(); if (OrderLinesGrid.SelectedItem is not OrderLine line) throw new InvalidOperationException("Выберите позицию заказа."); if (!Confirm("Удалить позицию и вернуть её количество в остаток?")) return; store.RemoveOrderLine(user!, order.Id, line.Id); RefreshOrders(order.Id); });
     private void NewOrderClick(object sender, RoutedEventArgs e) => Safe(() => { Navigate("catalog"); StatusLabel.Text = "Выберите товары, затем в корзине укажите клиента и подтвердите заказ."; });
 }
+
