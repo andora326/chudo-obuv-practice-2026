@@ -1,0 +1,1 @@
+Server=(localdb)\MSSQLLocalDB;Database=ShoeTest;Integrated Security=True;Encrypt=False;Connect Timeout=30

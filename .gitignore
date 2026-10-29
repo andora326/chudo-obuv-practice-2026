@@ -27,3 +27,17 @@ connection-string.txt
 
 *.py
 __pycache__/
+
+# Комплект сдачи по заданию
+!database/seed.sql
+!database/full.sql
+!src/ShoeStore.App/Assets/
+!src/ShoeStore.App/Assets/**
+!release/
+release/*
+!release/final/
+release/final/*.pdb
+!docs/diagrams/
+docs/diagrams/*
+!docs/diagrams/ERD.pdf
+!release/final/connection-string.txt
