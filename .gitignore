@@ -24,3 +24,6 @@ connection-string.txt
 *.mdf
 *.ldf
 *.bak
+
+*.py
+__pycache__/
