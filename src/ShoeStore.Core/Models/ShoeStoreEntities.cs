@@ -41,6 +41,6 @@ public partial class ShoeStoreEntities : DbContext
     public virtual DbSet<Sizes> Sizes { get; set; } = null!;
     public virtual DbSet<StockItems> StockItems { get; set; } = null!;
     public virtual DbSet<Orders> Orders { get; set; } = null!;
-    public virtual DbSet<OrderLines> OrderLines { get; set; } = null!;
+    public virtual DbSet<OrderItems> OrderItems { get; set; } = null!;
 }
 

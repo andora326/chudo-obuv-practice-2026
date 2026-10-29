@@ -10,236 +10,235 @@
     <ns0:EntitySet Name="Sizes" EntityType="ShoeStoreModel.Store.Sizes" Schema="dbo" Table="Sizes" />
     <ns0:EntitySet Name="StockItems" EntityType="ShoeStoreModel.Store.StockItems" Schema="dbo" Table="StockItems" />
     <ns0:EntitySet Name="Orders" EntityType="ShoeStoreModel.Store.Orders" Schema="dbo" Table="Orders" />
-    <ns0:EntitySet Name="OrderLines" EntityType="ShoeStoreModel.Store.OrderLines" Schema="dbo" Table="OrderLines" />
-    <ns0:AssociationSet Name="FK_Users_RoleId" Association="ShoeStoreModel.Store.FK_Users_RoleId">
+    <ns0:EntitySet Name="OrderItems" EntityType="ShoeStoreModel.Store.OrderItems" Schema="dbo" Table="OrderItems" />
+    <ns0:AssociationSet Name="FK_Users_roleId" Association="ShoeStoreModel.Store.FK_Users_roleId">
       <ns0:End Role="Roles" EntitySet="Roles" />
       <ns0:End Role="Users" EntitySet="Users" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_Subcategories_CategoryId" Association="ShoeStoreModel.Store.FK_Subcategories_CategoryId">
+    <ns0:AssociationSet Name="FK_Products_categoryId" Association="ShoeStoreModel.Store.FK_Products_categoryId">
       <ns0:End Role="Categories" EntitySet="Categories" />
-      <ns0:End Role="Subcategories" EntitySet="Subcategories" />
+      <ns0:End Role="Products" EntitySet="Products" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_Products_SubcategoryId" Association="ShoeStoreModel.Store.FK_Products_SubcategoryId">
+    <ns0:AssociationSet Name="FK_Products_subcategoryId" Association="ShoeStoreModel.Store.FK_Products_subcategoryId">
       <ns0:End Role="Subcategories" EntitySet="Subcategories" />
       <ns0:End Role="Products" EntitySet="Products" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_Products_ManufacturerId" Association="ShoeStoreModel.Store.FK_Products_ManufacturerId">
+    <ns0:AssociationSet Name="FK_Products_manufacturerId" Association="ShoeStoreModel.Store.FK_Products_manufacturerId">
       <ns0:End Role="Manufacturers" EntitySet="Manufacturers" />
       <ns0:End Role="Products" EntitySet="Products" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_StockItems_ProductId" Association="ShoeStoreModel.Store.FK_StockItems_ProductId">
+    <ns0:AssociationSet Name="FK_StockItems_productId" Association="ShoeStoreModel.Store.FK_StockItems_productId">
       <ns0:End Role="Products" EntitySet="Products" />
       <ns0:End Role="StockItems" EntitySet="StockItems" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_StockItems_SizeId" Association="ShoeStoreModel.Store.FK_StockItems_SizeId">
+    <ns0:AssociationSet Name="FK_StockItems_sizeId" Association="ShoeStoreModel.Store.FK_StockItems_sizeId">
       <ns0:End Role="Sizes" EntitySet="Sizes" />
       <ns0:End Role="StockItems" EntitySet="StockItems" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_Orders_UserId" Association="ShoeStoreModel.Store.FK_Orders_UserId">
+    <ns0:AssociationSet Name="FK_Orders_userId" Association="ShoeStoreModel.Store.FK_Orders_userId">
       <ns0:End Role="Users" EntitySet="Users" />
       <ns0:End Role="Orders" EntitySet="Orders" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_OrderLines_OrderId" Association="ShoeStoreModel.Store.FK_OrderLines_OrderId">
+    <ns0:AssociationSet Name="FK_OrderItems_orderId" Association="ShoeStoreModel.Store.FK_OrderItems_orderId">
       <ns0:End Role="Orders" EntitySet="Orders" />
-      <ns0:End Role="OrderLines" EntitySet="OrderLines" />
+      <ns0:End Role="OrderItems" EntitySet="OrderItems" />
     </ns0:AssociationSet>
-    <ns0:AssociationSet Name="FK_OrderLines_StockItemId" Association="ShoeStoreModel.Store.FK_OrderLines_StockItemId">
+    <ns0:AssociationSet Name="FK_OrderItems_stockItemId" Association="ShoeStoreModel.Store.FK_OrderItems_stockItemId">
       <ns0:End Role="StockItems" EntitySet="StockItems" />
-      <ns0:End Role="OrderLines" EntitySet="OrderLines" />
+      <ns0:End Role="OrderItems" EntitySet="OrderItems" />
     </ns0:AssociationSet>
   </ns0:EntityContainer>
   <ns0:EntityType Name="Roles">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="name" Type="nvarchar" Nullable="false" MaxLength="50" />
   </ns0:EntityType>
   <ns0:EntityType Name="Users">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="Login" Type="nvarchar" Nullable="false" MaxLength="100" />
-    <ns0:Property Name="LastName" Type="nvarchar" Nullable="false" MaxLength="100" />
-    <ns0:Property Name="FirstName" Type="nvarchar" Nullable="false" MaxLength="100" />
-    <ns0:Property Name="MiddleName" Type="nvarchar" Nullable="false" MaxLength="100" />
-    <ns0:Property Name="RoleId" Type="int" Nullable="false" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="surname" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <ns0:Property Name="firstname" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <ns0:Property Name="patronomyc" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <ns0:Property Name="login" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <ns0:Property Name="roleId" Type="int" Nullable="false" />
   </ns0:EntityType>
   <ns0:EntityType Name="Categories">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="name" Type="nvarchar" Nullable="false" MaxLength="50" />
   </ns0:EntityType>
   <ns0:EntityType Name="Subcategories">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="CategoryId" Type="int" Nullable="false" />
-    <ns0:Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="name" Type="nvarchar" Nullable="false" MaxLength="50" />
   </ns0:EntityType>
   <ns0:EntityType Name="Manufacturers">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="150" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="name" Type="nvarchar" Nullable="false" MaxLength="50" />
   </ns0:EntityType>
   <ns0:EntityType Name="Products">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="SubcategoryId" Type="int" Nullable="false" />
-    <ns0:Property Name="ManufacturerId" Type="int" Nullable="false" />
-    <ns0:Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="255" />
-    <ns0:Property Name="Image" Type="nvarchar" Nullable="true" MaxLength="255" />
-    <ns0:Property Name="Description" Type="nvarchar(max)" Nullable="false" />
-    <ns0:Property Name="Composition" Type="nvarchar(max)" Nullable="false" />
-    <ns0:Property Name="PriceCents" Type="bigint" Nullable="false" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="categoryId" Type="int" Nullable="false" />
+    <ns0:Property Name="subcategoryId" Type="int" Nullable="false" />
+    <ns0:Property Name="imagePath" Type="nvarchar" Nullable="true" MaxLength="150" />
+    <ns0:Property Name="name" Type="nvarchar" Nullable="false" MaxLength="250" />
+    <ns0:Property Name="manufacturerId" Type="int" Nullable="false" />
+    <ns0:Property Name="description" Type="nvarchar" Nullable="false" MaxLength="250" />
+    <ns0:Property Name="composition" Type="nvarchar" Nullable="false" MaxLength="250" />
+    <ns0:Property Name="price" Type="decimal" Nullable="false" Precision="18" Scale="0" />
   </ns0:EntityType>
   <ns0:EntityType Name="Sizes">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="Value" Type="decimal" Nullable="false" Precision="4" Scale="1" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="size" Type="float" Nullable="false" />
   </ns0:EntityType>
   <ns0:EntityType Name="StockItems">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" />
-    <ns0:Property Name="ProductId" Type="int" Nullable="false" />
-    <ns0:Property Name="SizeId" Type="int" Nullable="false" />
-    <ns0:Property Name="Quantity" Type="int" Nullable="false" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="productId" Type="int" Nullable="false" />
+    <ns0:Property Name="sizeId" Type="int" Nullable="false" />
+    <ns0:Property Name="quantity" Type="int" Nullable="false" />
   </ns0:EntityType>
   <ns0:EntityType Name="Orders">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
-    <ns0:Property Name="OrderedAt" Type="date" Nullable="false" />
-    <ns0:Property Name="UserId" Type="int" Nullable="false" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="date" Type="date" Nullable="false" />
+    <ns0:Property Name="userId" Type="int" Nullable="false" />
   </ns0:EntityType>
-  <ns0:EntityType Name="OrderLines">
+  <ns0:EntityType Name="OrderItems">
     <ns0:Key>
-      <ns0:PropertyRef Name="Id" />
+      <ns0:PropertyRef Name="id" />
     </ns0:Key>
-    <ns0:Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
-    <ns0:Property Name="OrderId" Type="int" Nullable="false" />
-    <ns0:Property Name="StockItemId" Type="int" Nullable="false" />
-    <ns0:Property Name="Quantity" Type="int" Nullable="false" />
-    <ns0:Property Name="UnitPriceCents" Type="bigint" Nullable="false" />
+    <ns0:Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <ns0:Property Name="orderId" Type="int" Nullable="false" />
+    <ns0:Property Name="stockItemId" Type="int" Nullable="false" />
+    <ns0:Property Name="quantity" Type="int" Nullable="false" />
   </ns0:EntityType>
-  <ns0:Association Name="FK_Users_RoleId">
+  <ns0:Association Name="FK_Users_roleId">
     <ns0:End Type="ShoeStoreModel.Store.Roles" Role="Roles" Multiplicity="1" />
     <ns0:End Type="ShoeStoreModel.Store.Users" Role="Users" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Roles">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
       <ns0:Dependent Role="Users">
-        <ns0:PropertyRef Name="RoleId" />
+        <ns0:PropertyRef Name="roleId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_Subcategories_CategoryId">
+  <ns0:Association Name="FK_Products_categoryId">
     <ns0:End Type="ShoeStoreModel.Store.Categories" Role="Categories" Multiplicity="1" />
-    <ns0:End Type="ShoeStoreModel.Store.Subcategories" Role="Subcategories" Multiplicity="*" />
+    <ns0:End Type="ShoeStoreModel.Store.Products" Role="Products" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Categories">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
-      <ns0:Dependent Role="Subcategories">
-        <ns0:PropertyRef Name="CategoryId" />
+      <ns0:Dependent Role="Products">
+        <ns0:PropertyRef Name="categoryId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_Products_SubcategoryId">
+  <ns0:Association Name="FK_Products_subcategoryId">
     <ns0:End Type="ShoeStoreModel.Store.Subcategories" Role="Subcategories" Multiplicity="1" />
     <ns0:End Type="ShoeStoreModel.Store.Products" Role="Products" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Subcategories">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
       <ns0:Dependent Role="Products">
-        <ns0:PropertyRef Name="SubcategoryId" />
+        <ns0:PropertyRef Name="subcategoryId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_Products_ManufacturerId">
+  <ns0:Association Name="FK_Products_manufacturerId">
     <ns0:End Type="ShoeStoreModel.Store.Manufacturers" Role="Manufacturers" Multiplicity="1" />
     <ns0:End Type="ShoeStoreModel.Store.Products" Role="Products" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Manufacturers">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
       <ns0:Dependent Role="Products">
-        <ns0:PropertyRef Name="ManufacturerId" />
+        <ns0:PropertyRef Name="manufacturerId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_StockItems_ProductId">
+  <ns0:Association Name="FK_StockItems_productId">
     <ns0:End Type="ShoeStoreModel.Store.Products" Role="Products" Multiplicity="1" />
     <ns0:End Type="ShoeStoreModel.Store.StockItems" Role="StockItems" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Products">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
       <ns0:Dependent Role="StockItems">
-        <ns0:PropertyRef Name="ProductId" />
+        <ns0:PropertyRef Name="productId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_StockItems_SizeId">
+  <ns0:Association Name="FK_StockItems_sizeId">
     <ns0:End Type="ShoeStoreModel.Store.Sizes" Role="Sizes" Multiplicity="1" />
     <ns0:End Type="ShoeStoreModel.Store.StockItems" Role="StockItems" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Sizes">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
       <ns0:Dependent Role="StockItems">
-        <ns0:PropertyRef Name="SizeId" />
+        <ns0:PropertyRef Name="sizeId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_Orders_UserId">
+  <ns0:Association Name="FK_Orders_userId">
     <ns0:End Type="ShoeStoreModel.Store.Users" Role="Users" Multiplicity="1" />
     <ns0:End Type="ShoeStoreModel.Store.Orders" Role="Orders" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Users">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
       <ns0:Dependent Role="Orders">
-        <ns0:PropertyRef Name="UserId" />
+        <ns0:PropertyRef Name="userId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_OrderLines_OrderId">
+  <ns0:Association Name="FK_OrderItems_orderId">
     <ns0:End Type="ShoeStoreModel.Store.Orders" Role="Orders" Multiplicity="1" />
-    <ns0:End Type="ShoeStoreModel.Store.OrderLines" Role="OrderLines" Multiplicity="*" />
+    <ns0:End Type="ShoeStoreModel.Store.OrderItems" Role="OrderItems" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="Orders">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
-      <ns0:Dependent Role="OrderLines">
-        <ns0:PropertyRef Name="OrderId" />
+      <ns0:Dependent Role="OrderItems">
+        <ns0:PropertyRef Name="orderId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>
-  <ns0:Association Name="FK_OrderLines_StockItemId">
+  <ns0:Association Name="FK_OrderItems_stockItemId">
     <ns0:End Type="ShoeStoreModel.Store.StockItems" Role="StockItems" Multiplicity="1" />
-    <ns0:End Type="ShoeStoreModel.Store.OrderLines" Role="OrderLines" Multiplicity="*" />
+    <ns0:End Type="ShoeStoreModel.Store.OrderItems" Role="OrderItems" Multiplicity="*" />
     <ns0:ReferentialConstraint>
       <ns0:Principal Role="StockItems">
-        <ns0:PropertyRef Name="Id" />
+        <ns0:PropertyRef Name="id" />
       </ns0:Principal>
-      <ns0:Dependent Role="OrderLines">
-        <ns0:PropertyRef Name="StockItemId" />
+      <ns0:Dependent Role="OrderItems">
+        <ns0:PropertyRef Name="stockItemId" />
       </ns0:Dependent>
     </ns0:ReferentialConstraint>
   </ns0:Association>

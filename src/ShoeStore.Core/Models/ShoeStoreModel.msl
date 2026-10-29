@@ -4,97 +4,96 @@
     <ns0:EntitySetMapping Name="Roles">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Roles">
         <ns0:MappingFragment StoreEntitySet="Roles">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="Name" ColumnName="Name" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="Name" ColumnName="name" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="Users">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Users">
         <ns0:MappingFragment StoreEntitySet="Users">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="Login" ColumnName="Login" />
-          <ns0:ScalarProperty Name="LastName" ColumnName="LastName" />
-          <ns0:ScalarProperty Name="FirstName" ColumnName="FirstName" />
-          <ns0:ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
-          <ns0:ScalarProperty Name="RoleId" ColumnName="RoleId" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="LastName" ColumnName="surname" />
+          <ns0:ScalarProperty Name="FirstName" ColumnName="firstname" />
+          <ns0:ScalarProperty Name="MiddleName" ColumnName="patronomyc" />
+          <ns0:ScalarProperty Name="Login" ColumnName="login" />
+          <ns0:ScalarProperty Name="RoleId" ColumnName="roleId" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="Categories">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Categories">
         <ns0:MappingFragment StoreEntitySet="Categories">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="Name" ColumnName="Name" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="Name" ColumnName="name" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="Subcategories">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Subcategories">
         <ns0:MappingFragment StoreEntitySet="Subcategories">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-          <ns0:ScalarProperty Name="Name" ColumnName="Name" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="Name" ColumnName="name" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="Manufacturers">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Manufacturers">
         <ns0:MappingFragment StoreEntitySet="Manufacturers">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="Name" ColumnName="Name" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="Name" ColumnName="name" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="Products">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Products">
         <ns0:MappingFragment StoreEntitySet="Products">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="SubcategoryId" ColumnName="SubcategoryId" />
-          <ns0:ScalarProperty Name="ManufacturerId" ColumnName="ManufacturerId" />
-          <ns0:ScalarProperty Name="Name" ColumnName="Name" />
-          <ns0:ScalarProperty Name="Image" ColumnName="Image" />
-          <ns0:ScalarProperty Name="Description" ColumnName="Description" />
-          <ns0:ScalarProperty Name="Composition" ColumnName="Composition" />
-          <ns0:ScalarProperty Name="PriceCents" ColumnName="PriceCents" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="CategoryId" ColumnName="categoryId" />
+          <ns0:ScalarProperty Name="SubcategoryId" ColumnName="subcategoryId" />
+          <ns0:ScalarProperty Name="Image" ColumnName="imagePath" />
+          <ns0:ScalarProperty Name="Name" ColumnName="name" />
+          <ns0:ScalarProperty Name="ManufacturerId" ColumnName="manufacturerId" />
+          <ns0:ScalarProperty Name="Description" ColumnName="description" />
+          <ns0:ScalarProperty Name="Composition" ColumnName="composition" />
+          <ns0:ScalarProperty Name="Price" ColumnName="price" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="Sizes">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Sizes">
         <ns0:MappingFragment StoreEntitySet="Sizes">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="Value" ColumnName="Value" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="Value" ColumnName="size" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="StockItems">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.StockItems">
         <ns0:MappingFragment StoreEntitySet="StockItems">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="ProductId" ColumnName="ProductId" />
-          <ns0:ScalarProperty Name="SizeId" ColumnName="SizeId" />
-          <ns0:ScalarProperty Name="Quantity" ColumnName="Quantity" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="ProductId" ColumnName="productId" />
+          <ns0:ScalarProperty Name="SizeId" ColumnName="sizeId" />
+          <ns0:ScalarProperty Name="Quantity" ColumnName="quantity" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
     <ns0:EntitySetMapping Name="Orders">
       <ns0:EntityTypeMapping TypeName="ShoeStoreModel.Orders">
         <ns0:MappingFragment StoreEntitySet="Orders">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="OrderedAt" ColumnName="OrderedAt" />
-          <ns0:ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="OrderedAt" ColumnName="date" />
+          <ns0:ScalarProperty Name="UserId" ColumnName="userId" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>
-    <ns0:EntitySetMapping Name="OrderLines">
-      <ns0:EntityTypeMapping TypeName="ShoeStoreModel.OrderLines">
-        <ns0:MappingFragment StoreEntitySet="OrderLines">
-          <ns0:ScalarProperty Name="Id" ColumnName="Id" />
-          <ns0:ScalarProperty Name="OrderId" ColumnName="OrderId" />
-          <ns0:ScalarProperty Name="StockItemId" ColumnName="StockItemId" />
-          <ns0:ScalarProperty Name="Quantity" ColumnName="Quantity" />
-          <ns0:ScalarProperty Name="UnitPriceCents" ColumnName="UnitPriceCents" />
+    <ns0:EntitySetMapping Name="OrderItems">
+      <ns0:EntityTypeMapping TypeName="ShoeStoreModel.OrderItems">
+        <ns0:MappingFragment StoreEntitySet="OrderItems">
+          <ns0:ScalarProperty Name="Id" ColumnName="id" />
+          <ns0:ScalarProperty Name="OrderId" ColumnName="orderId" />
+          <ns0:ScalarProperty Name="StockItemId" ColumnName="stockItemId" />
+          <ns0:ScalarProperty Name="Quantity" ColumnName="quantity" />
         </ns0:MappingFragment>
       </ns0:EntityTypeMapping>
     </ns0:EntitySetMapping>

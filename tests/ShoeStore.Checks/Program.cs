@@ -70,7 +70,7 @@ void Execute(string sql)
     command.ExecuteNonQuery();
 }
 
-Check("Импорт: 31 модель, 92 позиции, 20 пользователей, 10 заказов, 30 строк", () => Assert(store.Products().Count == 31 && Scalar("SELECT COUNT(*) FROM StockItems") == 92 && Scalar("SELECT COUNT(*) FROM Users") == 20 && store.Orders(admin).Count == 10 && Scalar("SELECT COUNT(*) FROM OrderLines") == 30));
+Check("Импорт: 31 модель, 92 позиции, 20 пользователей, 10 заказов, 30 строк", () => Assert(store.Products().Count == 31 && Scalar("SELECT COUNT(*) FROM StockItems") == 92 && Scalar("SELECT COUNT(*) FROM Users") == 20 && store.Orders(admin).Count == 10 && Scalar("SELECT COUNT(*) FROM OrderItems") == 30));
 Check("Подключение к готовой базе и отказ без автосоздания", () => {
     store.CheckConnection();
     Assert(store.Products().Count == 31);
@@ -90,11 +90,11 @@ Check("Нет заказов в прошлом месяце — скидка 25 
 Check("Поиск на кириллице без учёта регистра по описанию", () => Assert(store.Products("СМОЛЕНСК").Count > 0));
 Check("Поиск, категория и сортировка применяются совместно", () => { var list = store.Products("кроссовки", "Женская обувь", 2); Assert(list.Count > 0 && list.All(p => p.Category == "Женская обувь") && list.Select(p => p.Price).SequenceEqual(list.Select(p => p.Price).OrderByDescending(p => p))); });
 Check("Неизвестный запрос возвращает пустой каталог", () => Assert(store.Products("неизвестныйтовар123").Count == 0));
-Check("Отсутствующее изображение заменяется заглушкой", () => { Execute("UPDATE Products SET Image=NULL WHERE Id=31"); Assert(store.Products().First(p => p.Id == 31).Image == "picture.png"); });
+Check("Отсутствующее изображение заменяется заглушкой", () => { Execute("UPDATE Products SET imagePath=NULL WHERE Id=31"); Assert(store.Products().First(p => p.Id == 31).Image == "picture.png"); });
 var stock = store.Stock(1).First();
 var stock2 = store.Stock(2).First();
 var orderId = 0;
-Check("Оформление заказа уменьшает остатки и сохраняет цены", () => { orderId = store.PlaceOrder(customer, [new(stock.Id, 2), new(stock2.Id, 1)]); Assert(store.Stock(1).First(s => s.Id == stock.Id).Quantity == stock.Quantity - 2); var lines = store.OrderLines(admin, orderId); Assert(lines.Count == 2 && lines.First().UnitPrice == store.Products().First(p => p.Id == 1).Price); });
+Check("Оформление заказа уменьшает остатки и рассчитывает сумму", () => { orderId = store.PlaceOrder(customer, [new(stock.Id, 2), new(stock2.Id, 1)]); Assert(store.Stock(1).First(s => s.Id == stock.Id).Quantity == stock.Quantity - 2); var lines = store.OrderLines(admin, orderId); Assert(lines.Count == 2 && lines.First().UnitPrice == store.Products().First(p => p.Id == 1).Price); });
 Check("Изменение даты запрещено менеджеру и клиенту", () => { Reject(() => store.ChangeOrderDate(manager, orderId, now)); Reject(() => store.ChangeOrderDate(customer, orderId, now)); });
 Check("Администратор изменяет дату заказа", () => { store.ChangeOrderDate(admin, orderId, now.AddDays(-1)); Assert(store.Orders(admin).First(o => o.Id == orderId).OrderedAt == now.AddDays(-1)); });
 Check("Будущая дата запрещена", () => Reject(() => store.ChangeOrderDate(admin, orderId, now.AddDays(1))));

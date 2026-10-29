@@ -27,7 +27,7 @@ public sealed class StoreService
         }
         catch (Exception exception)
         {
-            throw new InvalidOperationException("Не удалось подключиться к подготовленной базе. Создайте базу ChudoObuvPractice в SSMS, выполните schema.sql и seed.sql и проверьте connection-string.txt.", exception);
+            throw new InvalidOperationException("Не удалось подключиться к подготовленной базе. Проверьте базу ShoeTest и параметры подключения в connection-string.txt.", exception);
         }
     }
 
@@ -71,13 +71,13 @@ public sealed class StoreService
         var previousMonth = firstDay.AddMonths(-1);
         var query = from p in db.Products.AsNoTracking()
                     join sub in db.Subcategories on p.SubcategoryId equals sub.Id
-                    join cat in db.Categories on sub.CategoryId equals cat.Id
+                    join cat in db.Categories on p.CategoryId equals cat.Id
                     join manufacturer in db.Manufacturers on p.ManufacturerId equals manufacturer.Id
                     select new
                     {
                         Product = p, Category = cat.Name, Subcategory = sub.Name, Manufacturer = manufacturer.Name,
                         Quantity = db.StockItems.Where(s => s.ProductId == p.Id).Sum(s => (int?)s.Quantity) ?? 0,
-                        WasOrdered = (from l in db.OrderLines
+                        WasOrdered = (from l in db.OrderItems
                                       join s in db.StockItems on l.StockItemId equals s.Id
                                       join o in db.Orders on l.OrderId equals o.Id
                                       where s.ProductId == p.Id && o.OrderedAt >= previousMonth && o.OrderedAt < firstDay
@@ -87,10 +87,10 @@ public sealed class StoreService
         // После материализации доступны decimal.Round и сравнение строк с учётом кириллицы.
         var products = query.ToList().Select(row =>
         {
-            var basePrice = row.Product.PriceCents / 100m;
+            var basePrice = row.Product.Price;
             var price = row.WasOrdered ? basePrice : decimal.Round(basePrice * .75m, 2, MidpointRounding.AwayFromZero);
             return new Product(row.Product.Id, row.Product.Name, row.Category, row.Subcategory, row.Manufacturer,
-                row.Product.Image ?? "picture.png", row.Product.Composition, row.Product.Description, basePrice, price, row.Quantity);
+                Path.GetFileName((row.Product.Image ?? "picture.png").Replace('\\', '/')), row.Product.Composition, row.Product.Description, basePrice, price, row.Quantity);
         });
         var term = search.Trim();
         var filtered = products.Where(p => p.Name.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0 || p.Description.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
@@ -104,7 +104,7 @@ public sealed class StoreService
                     where s.ProductId == productId && (!availableOnly || s.Quantity > 0)
                     orderby size.Value
                     select new { s.Id, s.ProductId, Size = size.Value, s.Quantity };
-        return query.ToList().Select(s => new StockItem(s.Id, s.ProductId, s.Size, s.Quantity)).ToList();
+        return query.ToList().Select(s => new StockItem(s.Id, s.ProductId, (decimal)s.Size, s.Quantity)).ToList();
     }
     private static void Save(ShoeStoreEntities db)
     {
@@ -125,7 +125,6 @@ public sealed class StoreService
         var user = RequireUser(db, actor);
         var target = customerId ?? user.Id;
         if (target != user.Id) RequireUser(db, actor, Role.Manager);
-        var prices = ReadProducts(db).ToDictionary(p => p.Id, p => p.Price);
         var order = new Models.Orders { OrderedAt = today().Date, UserId = target };
         db.Orders.Add(order);
         Save(db);
@@ -136,7 +135,7 @@ public sealed class StoreService
             if (stock.Quantity < line.Quantity)
                 throw new InvalidOperationException("Недостаточно товара выбранного размера. Уменьшите количество или обновите каталог.");
             stock.Quantity -= line.Quantity;
-            db.OrderLines.Add(new Models.OrderLines { OrderId = order.Id, StockItemId = stock.Id, Quantity = line.Quantity, UnitPriceCents = (long)(prices[stock.ProductId] * 100m) });
+            db.OrderItems.Add(new Models.OrderItems { OrderId = order.Id, StockItemId = stock.Id, Quantity = line.Quantity });
         }
         // ConcurrencyMode=Fixed в EDMX заставляет EF проверять исходный остаток при UPDATE.
         Save(db);
@@ -147,25 +146,30 @@ public sealed class StoreService
     {
         using var db = Open();
         RequireUser(db, actor, Role.Manager);
-        var query = from o in db.Orders.AsNoTracking()
-                    join u in db.Users on o.UserId equals u.Id
-                    orderby o.OrderedAt descending, o.Id descending
-                    select new { o.Id, o.OrderedAt, Customer = u.LastName + " " + u.FirstName + " " + u.MiddleName,
-                        Total = db.OrderLines.Where(l => l.OrderId == o.Id).Sum(l => (long?)(l.Quantity * l.UnitPriceCents)) ?? 0 };
-        return query.ToList().Select(o => new OrderSummary(o.Id, o.OrderedAt, o.Customer, o.Total / 100m)).ToList();
+        var prices = ReadProducts(db).ToDictionary(p => p.Id, p => p.Price);
+        var items = (from line in db.OrderItems.AsNoTracking()
+                     join stock in db.StockItems on line.StockItemId equals stock.Id
+                     select new { line.OrderId, stock.ProductId, line.Quantity }).ToList();
+        var totals = items.GroupBy(x => x.OrderId).ToDictionary(g => g.Key, g => g.Sum(x => prices[x.ProductId] * x.Quantity));
+        var orders = (from order in db.Orders.AsNoTracking()
+                      join user in db.Users on order.UserId equals user.Id
+                      orderby order.OrderedAt descending, order.Id descending
+                      select new { order.Id, order.OrderedAt, Customer = user.LastName + " " + user.FirstName + " " + user.MiddleName }).ToList();
+        return orders.Select(o => new OrderSummary(o.Id, o.OrderedAt, o.Customer, totals.TryGetValue(o.Id, out var total) ? total : 0)).ToList();
     }
     public List<OrderLine> OrderLines(User actor, int orderId)
     {
         using var db = Open();
         RequireUser(db, actor, Role.Manager);
-        var query = from l in db.OrderLines.AsNoTracking()
+        var prices = ReadProducts(db).ToDictionary(p => p.Id, p => p.Price);
+        var query = from l in db.OrderItems.AsNoTracking()
                     join s in db.StockItems on l.StockItemId equals s.Id
                     join p in db.Products on s.ProductId equals p.Id
                     join m in db.Manufacturers on p.ManufacturerId equals m.Id
                     join size in db.Sizes on s.SizeId equals size.Id
                     where l.OrderId == orderId orderby l.Id
-                    select new { l.Id, StockId = s.Id, Product = p.Name, Manufacturer = m.Name, Size = size.Value, l.Quantity, l.UnitPriceCents };
-        return query.ToList().Select(l => new OrderLine(l.Id, l.StockId, l.Product, l.Manufacturer, l.Size, l.Quantity, l.UnitPriceCents / 100m)).ToList();
+                    select new { l.Id, StockId = s.Id, ProductId = p.Id, Product = p.Name, Manufacturer = m.Name, Size = size.Value, l.Quantity };
+        return query.ToList().Select(l => new OrderLine(l.Id, l.StockId, l.Product, l.Manufacturer, (decimal)l.Size, l.Quantity, prices[l.ProductId])).ToList();
     }
     public void DeleteOrder(User actor, int orderId)
     {
@@ -173,9 +177,9 @@ public sealed class StoreService
         using var transaction = db.Database.BeginTransaction();
         RequireUser(db, actor, Role.Manager);
         var order = db.Orders.SingleOrDefault(o => o.Id == orderId) ?? throw new InvalidOperationException("Заказ не найден. Обновите список.");
-        var lines = db.OrderLines.Where(l => l.OrderId == orderId).OrderBy(l => l.StockItemId).ToList();
+        var lines = db.OrderItems.Where(l => l.OrderId == orderId).OrderBy(l => l.StockItemId).ToList();
         foreach (var line in lines) db.StockItems.Single(s => s.Id == line.StockItemId).Quantity += line.Quantity;
-        db.OrderLines.RemoveRange(lines);
+        db.OrderItems.RemoveRange(lines);
         db.Orders.Remove(order);
         Save(db);
         transaction.Commit();
@@ -194,11 +198,11 @@ public sealed class StoreService
         using var db = Open();
         using var transaction = db.Database.BeginTransaction();
         RequireUser(db, actor, Role.Administrator);
-        if (db.OrderLines.Count(l => l.OrderId == orderId) <= 1)
+        if (db.OrderItems.Count(l => l.OrderId == orderId) <= 1)
             throw new InvalidOperationException("Это последняя позиция. Для отмены заказа используйте «Удалить заказ».");
-        var line = db.OrderLines.SingleOrDefault(l => l.Id == lineId && l.OrderId == orderId) ?? throw new InvalidOperationException("Позиция заказа не найдена.");
+        var line = db.OrderItems.SingleOrDefault(l => l.Id == lineId && l.OrderId == orderId) ?? throw new InvalidOperationException("Позиция заказа не найдена.");
         db.StockItems.Single(s => s.Id == line.StockItemId).Quantity += line.Quantity;
-        db.OrderLines.Remove(line);
+        db.OrderItems.Remove(line);
         Save(db);
         transaction.Commit();
     }

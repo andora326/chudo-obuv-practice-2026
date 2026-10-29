@@ -21,6 +21,27 @@ public sealed record BasketRow(int StockItemId, string Name, decimal Size, int Q
 public partial class MainWindow : Window
 {
     private readonly StoreService store;
+    private ProductsPage productsPage = null!;
+    private CartPage cartPage = null!;
+    private OrdersPage ordersPage = null!;
+    private Grid CatalogPanel => productsPage.CatalogPanel;
+    private Grid Filters => productsPage.Filters;
+    private TextBox SearchBox => productsPage.SearchBox;
+    private ComboBox CategoryBox => productsPage.CategoryBox;
+    private ComboBox SortBox => productsPage.SortBox;
+    private ListView ProductList => productsPage.ProductList;
+    private TextBlock EmptyCatalog => productsPage.EmptyCatalog;
+    private Grid CartPanel => cartPage.CartPanel;
+    private StackPanel CustomerPanel => cartPage.CustomerPanel;
+    private ComboBox CustomerBox => cartPage.CustomerBox;
+    private DataGrid CartGrid => cartPage.CartGrid;
+    private TextBox CartQuantity => cartPage.CartQuantity;
+    private TextBlock CartTotal => cartPage.CartTotal;
+    private Grid OrdersPanel => ordersPage.OrdersPanel;
+    private DataGrid OrdersGrid => ordersPage.OrdersGrid;
+    private DataGrid OrderLinesGrid => ordersPage.OrderLinesGrid;
+    private StackPanel AdminControls => ordersPage.AdminControls;
+    private DatePicker OrderDate => ordersPage.OrderDate;
     private readonly Frame mainFrame = new Frame { NavigationUIVisibility = NavigationUIVisibility.Hidden };
     private readonly Dictionary<string, Page> pages = new Dictionary<string, Page>();
     private User? user;
@@ -31,11 +52,12 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        PagesHost.Children.Clear();
-        CatalogPanel.Visibility = CartPanel.Visibility = OrdersPanel.Visibility = Visibility.Visible;
-        pages["catalog"] = new ProductsPage(CatalogPanel);
-        pages["cart"] = new CartPage(CartPanel);
-        pages["orders"] = new OrdersPage(OrdersPanel);
+        productsPage = new ProductsPage(this);
+        pages["catalog"] = productsPage;
+        cartPage = new CartPage(this);
+        pages["cart"] = cartPage;
+        ordersPage = new OrdersPage(this);
+        pages["orders"] = ordersPage;
         pages["auth"] = new AuthorizationPage(login => { LoginBox.Text = login; LoginClick(this, new RoutedEventArgs()); }, () => Navigate("catalog"));
         PagesHost.Children.Add(mainFrame);
         System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.GetCultureInfo("ru-RU");
@@ -122,10 +144,10 @@ public partial class MainWindow : Window
     private void CatalogClick(object sender, RoutedEventArgs e) => Safe(() => Navigate("catalog"));
     private void CartClick(object sender, RoutedEventArgs e) => Safe(() => Navigate("cart"));
     private void OrdersClick(object sender, RoutedEventArgs e) => Safe(() => Navigate("orders"));
-    private void SearchChanged(object sender, TextChangedEventArgs e) => Safe(RefreshCatalog);
-    private void FilterChanged(object sender, SelectionChangedEventArgs e) => Safe(RefreshCatalog);
-    private void DetailsClick(object sender, RoutedEventArgs e) { if (((Button)sender).Tag is Product p) OpenDetails(p); }
-    private void ProductDoubleClick(object sender, MouseButtonEventArgs e) { if (ProductList.SelectedItem is ProductRow row) OpenDetails(row.Product); }
+    internal void SearchChanged(object sender, TextChangedEventArgs e) => Safe(RefreshCatalog);
+    internal void FilterChanged(object sender, SelectionChangedEventArgs e) => Safe(RefreshCatalog);
+    internal void DetailsClick(object sender, RoutedEventArgs e) { if (((Button)sender).Tag is Product p) OpenDetails(p); }
+    internal void ProductDoubleClick(object sender, MouseButtonEventArgs e) { if (ProductList.SelectedItem is ProductRow row) OpenDetails(row.Product); }
 
     private void OpenDetails(Product product) => Safe(() =>
     {
@@ -159,7 +181,7 @@ public partial class MainWindow : Window
         StatusLabel.Text = basket.Count == 0 ? "Корзина пуста. Выберите товары в каталоге." : "До подтверждения заказа остатки не резервируются. Выберите строку для изменения количества.";
     }
 
-    private void UpdateCartClick(object sender, RoutedEventArgs e) => Safe(() =>
+    internal void UpdateCartClick(object sender, RoutedEventArgs e) => Safe(() =>
     {
         if (CartGrid.SelectedItem is not BasketRow row) throw new InvalidOperationException("Выберите позицию корзины.");
         if (!int.TryParse(CartQuantity.Text, out var quantity) || quantity <= 0) throw new InvalidOperationException("Введите положительное целое количество пар.");
@@ -168,10 +190,10 @@ public partial class MainWindow : Window
         basket[basket.IndexOf(row)] = row with { Quantity = quantity };
         RefreshCart();
     });
-    private void RemoveCartClick(object sender, RoutedEventArgs e) => Safe(() => { if (CartGrid.SelectedItem is not BasketRow row) throw new InvalidOperationException("Выберите позицию корзины."); basket.Remove(row); RefreshCart(); });
+    internal void RemoveCartClick(object sender, RoutedEventArgs e) => Safe(() => { if (CartGrid.SelectedItem is not BasketRow row) throw new InvalidOperationException("Выберите позицию корзины."); basket.Remove(row); RefreshCart(); });
     private bool Confirm(string message) => MessageBox.Show(this, message, "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
-    private void ClearCartClick(object sender, RoutedEventArgs e) { if (Confirm("Очистить корзину и отказаться от несохранённого заказа?")) { basket.Clear(); RefreshCart(); } }
-    private void ConfirmOrderClick(object sender, RoutedEventArgs e) => Safe(() =>
+    internal void ClearCartClick(object sender, RoutedEventArgs e) { if (Confirm("Очистить корзину и отказаться от несохранённого заказа?")) { basket.Clear(); RefreshCart(); } }
+    internal void ConfirmOrderClick(object sender, RoutedEventArgs e) => Safe(() =>
     {
         if (user is null) throw new InvalidOperationException("Войдите по логину.");
         if (basket.Count == 0) throw new InvalidOperationException("Корзина пуста. Добавьте хотя бы один товар.");
@@ -192,16 +214,16 @@ public partial class MainWindow : Window
         OrdersGrid.SelectedItem = orders.FirstOrDefault(o => o.Id == selectedId) ?? orders.FirstOrDefault();
         StatusLabel.Text = $"Заказов: {orders.Count}. Выберите заказ для просмотра состава.";
     }
-    private void OrderSelectionChanged(object sender, SelectionChangedEventArgs e) => Safe(() =>
+    internal void OrderSelectionChanged(object sender, SelectionChangedEventArgs e) => Safe(() =>
     {
         if (user is null || OrdersGrid.SelectedItem is not OrderSummary order) { OrderLinesGrid.ItemsSource = null; return; }
         OrderLinesGrid.ItemsSource = store.OrderLines(user, order.Id);
         OrderDate.SelectedDate = order.OrderedAt;
     });
     private OrderSummary SelectedOrder() => OrdersGrid.SelectedItem as OrderSummary ?? throw new InvalidOperationException("Выберите заказ в списке.");
-    private void DeleteOrderClick(object sender, RoutedEventArgs e) => Safe(() => { var order = SelectedOrder(); if (!Confirm($"Удалить заказ №{order.Id}? Все его товары вернутся в доступные остатки.")) return; store.DeleteOrder(user!, order.Id); RefreshOrders(); });
-    private void ChangeDateClick(object sender, RoutedEventArgs e) => Safe(() => { var order = SelectedOrder(); var date = OrderDate.SelectedDate ?? throw new InvalidOperationException("Выберите корректную дату."); store.ChangeOrderDate(user!, order.Id, date); RefreshOrders(order.Id); });
-    private void DeleteLineClick(object sender, RoutedEventArgs e) => Safe(() => { var order = SelectedOrder(); if (OrderLinesGrid.SelectedItem is not OrderLine line) throw new InvalidOperationException("Выберите позицию заказа."); if (!Confirm("Удалить позицию и вернуть её количество в остаток?")) return; store.RemoveOrderLine(user!, order.Id, line.Id); RefreshOrders(order.Id); });
-    private void NewOrderClick(object sender, RoutedEventArgs e) => Safe(() => { Navigate("catalog"); StatusLabel.Text = "Выберите товары, затем в корзине укажите клиента и подтвердите заказ."; });
+    internal void DeleteOrderClick(object sender, RoutedEventArgs e) => Safe(() => { var order = SelectedOrder(); if (!Confirm($"Удалить заказ №{order.Id}? Все его товары вернутся в доступные остатки.")) return; store.DeleteOrder(user!, order.Id); RefreshOrders(); });
+    internal void ChangeDateClick(object sender, RoutedEventArgs e) => Safe(() => { var order = SelectedOrder(); var date = OrderDate.SelectedDate ?? throw new InvalidOperationException("Выберите корректную дату."); store.ChangeOrderDate(user!, order.Id, date); RefreshOrders(order.Id); });
+    internal void DeleteLineClick(object sender, RoutedEventArgs e) => Safe(() => { var order = SelectedOrder(); if (OrderLinesGrid.SelectedItem is not OrderLine line) throw new InvalidOperationException("Выберите позицию заказа."); if (!Confirm("Удалить позицию и вернуть её количество в остаток?")) return; store.RemoveOrderLine(user!, order.Id, line.Id); RefreshOrders(order.Id); });
+    internal void NewOrderClick(object sender, RoutedEventArgs e) => Safe(() => { Navigate("catalog"); StatusLabel.Text = "Выберите товары, затем в корзине укажите клиента и подтвердите заказ."; });
 }
 

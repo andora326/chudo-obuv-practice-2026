@@ -1,12 +1,83 @@
-CREATE TABLE dbo.Roles(Id int NOT NULL PRIMARY KEY, Name nvarchar(100) NOT NULL UNIQUE);
-CREATE TABLE dbo.Users(Id int NOT NULL PRIMARY KEY, Login nvarchar(100) COLLATE Cyrillic_General_CI_AS NOT NULL UNIQUE, LastName nvarchar(100) NOT NULL, FirstName nvarchar(100) NOT NULL, MiddleName nvarchar(100) NOT NULL, RoleId int NOT NULL REFERENCES dbo.Roles(Id));
-CREATE TABLE dbo.Categories(Id int NOT NULL PRIMARY KEY, Name nvarchar(100) NOT NULL UNIQUE);
-CREATE TABLE dbo.Subcategories(Id int NOT NULL PRIMARY KEY, CategoryId int NOT NULL REFERENCES dbo.Categories(Id), Name nvarchar(100) NOT NULL, UNIQUE(CategoryId, Name));
-CREATE TABLE dbo.Manufacturers(Id int NOT NULL PRIMARY KEY, Name nvarchar(150) NOT NULL UNIQUE);
-CREATE TABLE dbo.Products(Id int NOT NULL PRIMARY KEY, SubcategoryId int NOT NULL REFERENCES dbo.Subcategories(Id), ManufacturerId int NOT NULL REFERENCES dbo.Manufacturers(Id), Name nvarchar(255) NOT NULL, Image nvarchar(255) NULL, Description nvarchar(max) NOT NULL, Composition nvarchar(max) NOT NULL, PriceCents bigint NOT NULL CHECK(PriceCents>=0), UNIQUE(Name, ManufacturerId));
-CREATE TABLE dbo.Sizes(Id int NOT NULL PRIMARY KEY, Value decimal(4,1) NOT NULL UNIQUE CHECK(Value>0));
-CREATE TABLE dbo.StockItems(Id int NOT NULL PRIMARY KEY, ProductId int NOT NULL REFERENCES dbo.Products(Id), SizeId int NOT NULL REFERENCES dbo.Sizes(Id), Quantity int NOT NULL CHECK(Quantity>=0), UNIQUE(ProductId, SizeId));
-CREATE TABLE dbo.Orders(Id int IDENTITY(1,1) NOT NULL PRIMARY KEY, OrderedAt date NOT NULL, UserId int NOT NULL REFERENCES dbo.Users(Id));
-CREATE TABLE dbo.OrderLines(Id int IDENTITY(1,1) NOT NULL PRIMARY KEY, OrderId int NOT NULL REFERENCES dbo.Orders(Id) ON DELETE CASCADE, StockItemId int NOT NULL REFERENCES dbo.StockItems(Id), Quantity int NOT NULL CHECK(Quantity>0), UnitPriceCents bigint NOT NULL CHECK(UnitPriceCents>=0), UNIQUE(OrderId, StockItemId));
-CREATE INDEX IX_Orders_OrderedAt ON dbo.Orders(OrderedAt);
-CREATE INDEX IX_OrderLines_StockItemId ON dbo.OrderLines(StockItemId);
+CREATE TABLE dbo.[Roles](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [name] nvarchar(50) NOT NULL
+);
+
+CREATE TABLE dbo.[Users](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [surname] nvarchar(50) NOT NULL,
+    [firstname] nvarchar(50) NOT NULL,
+    [patronomyc] nvarchar(50) NOT NULL,
+    [login] nvarchar(50) NOT NULL,
+    [roleId] int NOT NULL
+);
+
+CREATE TABLE dbo.[Categories](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [name] nvarchar(50) NOT NULL
+);
+
+CREATE TABLE dbo.[Subcategories](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [name] nvarchar(50) NOT NULL
+);
+
+CREATE TABLE dbo.[Manufacturers](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [name] nvarchar(50) NOT NULL
+);
+
+CREATE TABLE dbo.[Products](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [categoryId] int NOT NULL,
+    [subcategoryId] int NOT NULL,
+    [imagePath] nvarchar(150) NULL,
+    [name] nvarchar(250) NOT NULL,
+    [manufacturerId] int NOT NULL,
+    [description] nvarchar(250) NOT NULL,
+    [composition] nvarchar(250) NOT NULL,
+    [price] decimal(18,0) NOT NULL
+);
+
+CREATE TABLE dbo.[Sizes](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [size] float NOT NULL
+);
+
+CREATE TABLE dbo.[StockItems](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [productId] int NOT NULL,
+    [sizeId] int NOT NULL,
+    [quantity] int NOT NULL
+);
+
+CREATE TABLE dbo.[Orders](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [date] date NOT NULL,
+    [userId] int NOT NULL
+);
+
+CREATE TABLE dbo.[OrderItems](
+    [id] int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [orderId] int NOT NULL,
+    [stockItemId] int NOT NULL,
+    [quantity] int NOT NULL
+);
+
+ALTER TABLE dbo.[Users] ADD CONSTRAINT [FK_Users_roleId] FOREIGN KEY ([roleId]) REFERENCES dbo.[Roles]([id]);
+
+ALTER TABLE dbo.[Products] ADD CONSTRAINT [FK_Products_categoryId] FOREIGN KEY ([categoryId]) REFERENCES dbo.[Categories]([id]);
+
+ALTER TABLE dbo.[Products] ADD CONSTRAINT [FK_Products_subcategoryId] FOREIGN KEY ([subcategoryId]) REFERENCES dbo.[Subcategories]([id]);
+
+ALTER TABLE dbo.[Products] ADD CONSTRAINT [FK_Products_manufacturerId] FOREIGN KEY ([manufacturerId]) REFERENCES dbo.[Manufacturers]([id]);
+
+ALTER TABLE dbo.[StockItems] ADD CONSTRAINT [FK_StockItems_productId] FOREIGN KEY ([productId]) REFERENCES dbo.[Products]([id]);
+
+ALTER TABLE dbo.[StockItems] ADD CONSTRAINT [FK_StockItems_sizeId] FOREIGN KEY ([sizeId]) REFERENCES dbo.[Sizes]([id]);
+
+ALTER TABLE dbo.[Orders] ADD CONSTRAINT [FK_Orders_userId] FOREIGN KEY ([userId]) REFERENCES dbo.[Users]([id]);
+
+ALTER TABLE dbo.[OrderItems] ADD CONSTRAINT [FK_OrderItems_orderId] FOREIGN KEY ([orderId]) REFERENCES dbo.[Orders]([id]);
+
+ALTER TABLE dbo.[OrderItems] ADD CONSTRAINT [FK_OrderItems_stockItemId] FOREIGN KEY ([stockItemId]) REFERENCES dbo.[StockItems]([id]);

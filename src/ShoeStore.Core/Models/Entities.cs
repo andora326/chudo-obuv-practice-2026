@@ -9,10 +9,10 @@ public partial class Roles
 public partial class Users
 {
     public int Id { get; set; }
-    public string Login { get; set; } = "";
     public string LastName { get; set; } = "";
     public string FirstName { get; set; } = "";
     public string MiddleName { get; set; } = "";
+    public string Login { get; set; } = "";
     public int RoleId { get; set; }
 }
 
@@ -25,7 +25,6 @@ public partial class Categories
 public partial class Subcategories
 {
     public int Id { get; set; }
-    public int CategoryId { get; set; }
     public string Name { get; set; } = "";
 }
 
@@ -38,19 +37,20 @@ public partial class Manufacturers
 public partial class Products
 {
     public int Id { get; set; }
+    public int CategoryId { get; set; }
     public int SubcategoryId { get; set; }
-    public int ManufacturerId { get; set; }
-    public string Name { get; set; } = "";
     public string Image { get; set; } = "";
+    public string Name { get; set; } = "";
+    public int ManufacturerId { get; set; }
     public string Description { get; set; } = "";
     public string Composition { get; set; } = "";
-    public long PriceCents { get; set; }
+    public decimal Price { get; set; }
 }
 
 public partial class Sizes
 {
     public int Id { get; set; }
-    public decimal Value { get; set; }
+    public double Value { get; set; }
 }
 
 public partial class StockItems
@@ -68,11 +68,10 @@ public partial class Orders
     public int UserId { get; set; }
 }
 
-public partial class OrderLines
+public partial class OrderItems
 {
     public int Id { get; set; }
     public int OrderId { get; set; }
     public int StockItemId { get; set; }
     public int Quantity { get; set; }
-    public long UnitPriceCents { get; set; }
 }

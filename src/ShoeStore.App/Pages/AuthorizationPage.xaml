@@ -1,0 +1,9 @@
+<Page x:Class="ShoeStore.App.Pages.AuthorizationPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Авторизация" FontFamily="Calibri" FontSize="16" Background="White">
+    <StackPanel Width="300" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Image x:Name="AuthLogo" Height="80" Width="100" Margin="0,0,0,10"/>
+        <TextBlock Text="Авторизация" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+        <TextBox x:Name="LoginField" ToolTip="Логин" AutomationProperties.Name="Логин пользователя" KeyDown="LoginKeyDown"/>
+        <Button Content="Войти" Click="LoginClick" Background="#70B2AF"/>
+        <Button Content="Войти как гость" Click="GuestClick"/>
+    </StackPanel>
+</Page>
