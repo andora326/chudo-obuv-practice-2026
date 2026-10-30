@@ -1,1 +1,6 @@
-namespace System.Runtime.CompilerServices { public sealed class IsExternalInit { } }
+namespace System.Runtime.CompilerServices
+{
+    public sealed class IsExternalInit
+    {
+    }
+}

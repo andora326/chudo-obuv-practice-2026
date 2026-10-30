@@ -8,7 +8,7 @@
 artifacts/
 docs/private/
 
-# Учебные данные и документы остаются только локально
+# Локальные документы и промежуточные материалы
 database/seed.sql
 database/full.sql
 release/
@@ -41,3 +41,5 @@ release/final/*.pdb
 docs/diagrams/*
 !docs/diagrams/ERD.pdf
 !release/final/connection-string.txt
+
+!docs/test-results.txt

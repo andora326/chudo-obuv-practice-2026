@@ -1,4 +1,4 @@
-<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="ShoeStore.App.Pages.OrdersPage" Title="Заказы клиентов" FontFamily="Calibri" FontSize="16" Background="White">
+<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="ShoeStore.App.Pages.OrdersPage" Title="Заказы клиентов" Language="ru-RU" FontFamily="Calibri" FontSize="16" Background="White">
   <Grid x:Name="OrdersPanel" Visibility="Visible">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -13,21 +13,21 @@
     </DockPanel>
     <DataGrid x:Name="OrdersGrid" Grid.Row="1" SelectionChanged="OrderSelectionChanged">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="Номер" Binding="{Binding Id}" Width="80" />
-        <DataGridTextColumn Header="Дата" Binding="{Binding OrderedAt,StringFormat=dd.MM.yyyy}" Width="140" />
-        <DataGridTextColumn Header="Клиент" Binding="{Binding Customer}" Width="*" />
-        <DataGridTextColumn Header="Итого, ₽" Binding="{Binding Total,StringFormat=N2}" Width="160" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Номер" Binding="{Binding Id}" Width="80" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Дата" Binding="{Binding OrderedAt,StringFormat=dd.MM.yyyy}" Width="140" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Клиент" Binding="{Binding Customer}" Width="*" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Итого, ₽" Binding="{Binding Total,StringFormat=N2}" Width="160" />
       </DataGrid.Columns>
     </DataGrid>
     <TextBlock Grid.Row="2" Text="Состав выбранного заказа" FontSize="21" Margin="4,12" />
     <DataGrid x:Name="OrderLinesGrid" Grid.Row="3">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="Модель" Binding="{Binding Product}" Width="*" />
-        <DataGridTextColumn Header="Производство" Binding="{Binding Manufacturer}" Width="170" />
-        <DataGridTextColumn Header="Размер" Binding="{Binding Size}" Width="75" />
-        <DataGridTextColumn Header="Пар" Binding="{Binding Quantity}" Width="60" />
-        <DataGridTextColumn Header="Цена, ₽" Binding="{Binding UnitPrice,StringFormat=N2}" Width="110" />
-        <DataGridTextColumn Header="Сумма, ₽" Binding="{Binding Total,StringFormat=N2}" Width="120" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Модель" Binding="{Binding Product}" Width="*" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Производство" Binding="{Binding Manufacturer}" Width="170" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Размер" Binding="{Binding Size}" Width="75" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Пар" Binding="{Binding Quantity}" Width="60" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Цена, ₽" Binding="{Binding UnitPrice,StringFormat=N2}" Width="110" />
+        <DataGridTextColumn ElementStyle="{StaticResource TableCellText}" Header="Сумма, ₽" Binding="{Binding Total,StringFormat=N2}" Width="120" />
       </DataGrid.Columns>
     </DataGrid>
     <StackPanel Grid.Row="4" Orientation="Horizontal">

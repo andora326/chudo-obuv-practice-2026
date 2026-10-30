@@ -1,5 +1,4 @@
 namespace ShoeStore.Core.Models;
-
 public partial class Roles
 {
     public int Id { get; set; }
