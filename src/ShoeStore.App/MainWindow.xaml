@@ -1,0 +1,36 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="ShoeStore.App.MainWindow" Title="Чудо Обувь" Width="1000" Height="600" MinWidth="1000" MinHeight="600" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="White">
+  <DockPanel LastChildFill="True">
+    <Border DockPanel.Dock="Top" Height="90" Background="#D2F6E7">
+      <Grid Margin="12,12">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Border Width="52" Height="52" Background="White" CornerRadius="5" Padding="5">
+            <Image x:Name="Logo" Stretch="Uniform" />
+          </Border>
+          <TextBlock Text="Чудо Обувь" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,6,0" />
+        </StackPanel>
+        <TextBlock x:Name="UserLabel" Grid.Column="2" Text="Пользователь:" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="AuthClick" />
+      </Grid>
+    </Border>
+
+    <StackPanel x:Name="NavigationBar" DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,10,3" Visibility="Collapsed">
+      <Button x:Name="CatalogButton" Content="Каталог" Width="76" Height="24" Padding="2" Click="CatalogClick" />
+      <Button x:Name="CartButton" Content="Корзина (0)" Width="94" Height="24" Padding="2" Click="CartClick" Visibility="Collapsed" />
+      <Button x:Name="OrdersButton" Content="Заказы" Width="70" Height="24" Padding="2" Click="OrdersClick" Visibility="Collapsed" />
+    </StackPanel>
+
+    <Border x:Name="ActionBar" DockPanel.Dock="Bottom" Height="46" Background="White" BorderBrush="#C7C7C7" BorderThickness="0,1,0,0" Visibility="Collapsed">
+      <Grid>
+        <Button x:Name="LogoutButton" Content="Выход" Width="62" Height="24" Padding="2" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" Click="LogoutClick" Background="#D5D5D5" BorderBrush="#A0A0A0" Visibility="Collapsed" />
+        <Button x:Name="ExitButton" Content="Выход" Width="62" Height="24" Padding="2" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ExitClick" Background="#D5D5D5" BorderBrush="#A0A0A0" Visibility="Collapsed" />
+      </Grid>
+    </Border>
+
+    <Grid x:Name="PagesHost" Background="White" />
+    <TextBlock x:Name="StatusLabel" Visibility="Collapsed" />
+  </DockPanel>
+</Window>

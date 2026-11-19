@@ -1,0 +1,70 @@
+<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="ShoeStore.App.Pages.ProductsPage" Title="Каталог обуви" Language="ru-RU" FontFamily="Arial" FontSize="10" Width="984" Background="#D5EFF8">
+  <Grid x:Name="CatalogPanel" Background="#D5EFF8">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid x:Name="Filters" Visibility="Collapsed" Margin="7,5,7,2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition />
+        <ColumnDefinition Width="160" />
+        <ColumnDefinition Width="170" />
+      </Grid.ColumnDefinitions>
+      <TextBox x:Name="SearchBox" AutomationProperties.Name="Поиск по названию и описанию" ToolTip="Поиск по названию и описанию" TextChanged="SearchChanged" />
+      <ComboBox x:Name="CategoryBox" Grid.Column="1" SelectionChanged="FilterChanged" />
+      <ComboBox x:Name="SortBox" Grid.Column="2" SelectionChanged="FilterChanged">
+        <ComboBoxItem Content="Без сортировки" />
+        <ComboBoxItem Content="Цена по возрастанию" />
+        <ComboBoxItem Content="Цена по убыванию" />
+      </ComboBox>
+    </Grid>
+    <Grid Grid.Row="1" Margin="7,5,7,6">
+      <ListView x:Name="ProductList" BorderThickness="0" Background="Transparent" HorizontalContentAlignment="Left" MouseDoubleClick="ProductDoubleClick" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <ListView.ItemContainerStyle>
+          <Style TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+          </Style>
+        </ListView.ItemContainerStyle>
+        <ListView.ItemTemplate>
+          <DataTemplate>
+            <Border Width="900" MinHeight="88" Padding="6" Margin="0,0,0,6" BorderBrush="#8EAEA2" BorderThickness="1" CornerRadius="3" Background="#D2F6E7">
+              <Border.Style>
+                <Style TargetType="Border">
+                  <Setter Property="Background" Value="#D2F6E7" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding LowStock}" Value="True">
+                      <Setter Property="Background" Value="#F4D1D1" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Border.Style>
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="100" />
+                  <ColumnDefinition />
+                  <ColumnDefinition Width="118" />
+                </Grid.ColumnDefinitions>
+                <Border Width="90" Height="74" Background="White" BorderBrush="#E2E2E2" BorderThickness="1" Padding="2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                  <Image Source="{Binding ImagePath}" Stretch="Uniform" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="2,0,4,0" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="12" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding CategoryLabel}" FontSize="11" Margin="0,3,0,0" />
+                  <TextBlock Text="{Binding QuantityLabel}" FontSize="11" />
+                  <TextBlock Text="{Binding Product.Composition,StringFormat=Состав: {0}}" TextWrapping="Wrap" FontSize="10" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                  <TextBlock Text="{Binding Product.PriceLabel}" FontWeight="Bold" FontSize="14" TextAlignment="Right" />
+                  <TextBlock Text="{Binding Product.OldPriceLabel}" TextDecorations="Strikethrough" Foreground="#B00000" FontSize="10" HorizontalAlignment="Right" />
+                </StackPanel>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+      <TextBlock x:Name="EmptyCatalog" Text="Товары не найдены. Измените поиск или категорию." Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Grid>
+  </Grid>
+</Page>
